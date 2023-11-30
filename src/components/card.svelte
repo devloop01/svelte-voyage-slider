@@ -84,7 +84,6 @@
 		transition: transform var(--card-transition-duration) var(--card-transition-easing);
 		user-select: none;
 		perspective: 1000px;
-		border: 1px solid red;
 	}
 
 	.card[data-state='current'] {
@@ -141,6 +140,8 @@
 		height: 100%;
 		pointer-events: none;
 		transform-style: preserve-3d;
+		display: flex;
+		align-items: center;
 
 		transform: rotateX(var(--rx)) rotateY(var(--ry));
 	}
@@ -161,7 +162,7 @@
 	.card__info {
 		position: relative;
 		z-index: 2;
-		transform: translateZ(62px);
+		transform: translateX(-15%) translateY(50%) translateZ(62px);
 		bottom: 0;
 	}
 
@@ -171,20 +172,25 @@
 		color: #fff;
 		transition: opacity var(--card-transition-duration) var(--card-transition-easing);
 
-		&[data-title] {
-			font-size: 2rem;
-			font-weight: 900;
+		&[data-title],
+		&[data-subtitle] {
+			font-size: 2.4rem;
+			font-weight: 800;
+			letter-spacing: 0.2rem;
+			white-space: nowrap;
+			text-transform: uppercase;
 		}
 
 		&[data-subtitle] {
-			font-size: 1.5rem;
-			font-weight: 800;
+			margin-left: 2.4rem;
+			font-size: 1.8rem;
+			font-weight: 600;
 		}
 
 		&[data-description] {
-			font-size: 1rem;
+			font-size: 0.95rem;
 			font-family: var(--font-archivo);
-			font-weight: 400;
+			font-weight: 300;
 		}
 	}
 </style>

@@ -29,8 +29,5 @@
 		"typescript": "^5.3.2",
 		"vite": "^4.5.0"
 	},
-	"type": "module",
-	"dependencies": {
-		"@fontsource-variable/montserrat": "^5.0.16"
-	}
+	"type": "module"
 }
