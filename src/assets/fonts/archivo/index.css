@@ -1,0 +1,25 @@
+/**
+ * @license
+ *
+ * Font Family: Archivo
+ * Designed by: Omnibus-Type
+ * URL: https://www.fontshare.com/fonts/archivo
+ * © 2023 Indian Type Foundry
+ *
+*/
+
+@font-face {
+	font-family: 'Archivo Variable';
+	src: url('./archivo-var.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Archivo Variable Italic';
+	src: url('./archivo-var-ital.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+	font-style: italic;
+}
