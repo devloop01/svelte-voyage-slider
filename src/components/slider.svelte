@@ -1,15 +1,15 @@
 <script lang="ts" context="module">
-	export { CardItem };
+	export { SlideItem };
 </script>
 
 <script lang="ts">
 	import { wrap } from '@/utils';
 
-	import Card, { type CardItem } from '@/components/card.svelte';
+	import Slide, { type SlideItem } from '@/components/slide.svelte';
 	import ChevronLeft from '@/components/icons/chevron-left.svelte';
 	import ChevronRight from '@/components/icons/chevron-right.svelte';
 
-	export let items: CardItem[];
+	export let items: SlideItem[];
 
 	let activeIndex = 0;
 
@@ -27,12 +27,12 @@
 	};
 </script>
 
-<div class="card-list" data-current-index={activeIndex}>
-	<button class="btn btn--left" on:click={prev}>
+<div class="slider" data-current-index={activeIndex}>
+	<button class="slider--btn" on:click={prev}>
 		<ChevronLeft />
 	</button>
 
-	<div class="wrapper">
+	<div class="slider--slides">
 		{#each items as item, index}
 			{@const state =
 				index === activeIndex
@@ -42,47 +42,40 @@
 					  : index === prevIndex
 					    ? 'previous'
 					    : undefined}
-			<Card {item} data-state={state} data-current={index === activeIndex || undefined} />
+			<Slide {item} data-state={state} data-current={index === activeIndex || undefined} />
 		{/each}
 	</div>
 
-	<button class="btn btn--right" on:click={next}>
+	<button class="slider--btn" on:click={next}>
 		<ChevronRight />
 	</button>
 </div>
 
 <style lang="postcss">
-	.card-list {
-		position: absolute;
-		width: calc(3 * var(--card-width));
-		height: auto;
+	.slider {
+		position: relative;
+		display: block;
+		width: calc(3 * var(--slide-width));
+		height: calc(1.5 * var(--slide-height));
+		display: flex;
+		align-items: center;
 	}
 
-	.wrapper {
+	.slider--slides {
 		position: relative;
 		width: 100%;
 		height: 100%;
-		perspective: 1000px;
+		perspective: 800px;
 	}
 
-	.btn {
+	.slider--btn {
 		--size: 30px;
+		--offset: 100px;
 
 		width: var(--size);
 		height: var(--size);
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		z-index: 100;
 		opacity: 0.7;
 		transition: opacity 250ms cubic-bezier(0.215, 0.61, 0.355, 1);
-
-		&.btn--left {
-			left: -8%;
-		}
-		&.btn--right {
-			right: -8%;
-		}
 
 		& svg {
 			width: 100%;

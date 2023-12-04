@@ -1,12 +1,25 @@
-@import '@/assets/fonts/archivo';
-@import '@/assets/fonts/clash-display';
+@font-face {
+	font-family: 'Archivo Variable';
+	src: url('/fonts/archivo-var.woff2') format('woff2');
+	font-weight: 100 900;
+	font-display: swap;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'ClashDisplay Variable';
+	src: url('/fonts/clash-display-var.woff2') format('woff2');
+	font-weight: 200 700;
+	font-display: swap;
+	font-style: normal;
+}
 
 :root {
-	--card-width: 200px;
-	--card-height: 300px;
+	--slide-width: 200px;
+	--slide-height: 300px;
 
-	--card-transition-duration: 800ms;
-	--card-transition-easing: ease;
+	--slide-transition-duration: 800ms;
+	--slide-transition-easing: ease;
 
 	--font-archivo: 'Archivo Variable', sans-serif;
 	--font-clash-display: 'ClashDisplay Variable', sans-serif;
@@ -41,14 +54,13 @@ button {
 	position: relative;
 	width: 100%;
 	height: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display: grid;
+	place-items: center;
 }
 
 @media only screen and (min-width: 800px) {
 	:root {
-		--card-width: 280px;
-		--card-height: 400px;
+		--slide-width: 280px;
+		--slide-height: 400px;
 	}
 }
