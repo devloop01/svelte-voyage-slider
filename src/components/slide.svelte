@@ -12,6 +12,8 @@
 	import type { Action } from 'svelte/action';
 
 	export let item: SlideItem;
+	export let offset: number;
+	export let zIndex: number;
 
 	const tilt: Action = (node) => {
 		const element = node.children[0] as HTMLElement;
@@ -42,9 +44,6 @@
 			const ox = (offsetX - node.clientWidth * 0.5) / (Math.PI * 3);
 			const oy = -(offsetY - node.clientHeight * 0.5) / (Math.PI * 4);
 
-			node.style.setProperty('--pseudoX', node.clientWidth / 2 + 'px');
-			node.style.setProperty('--pseudoY', node.clientHeight / 2 + 'px');
-
 			rotDeg.target.set(ox, oy);
 			bgPos.target.set(-ox * 0.3, oy * 0.3);
 		};
@@ -71,7 +70,7 @@
 	};
 </script>
 
-<div class="slide" use:tilt {...$$restProps}>
+<div class="slide" style:--offset={offset} style:z-index={zIndex} use:tilt {...$$restProps}>
 	<div class="slide__inner" style:--image-url="url({item.image})">
 		<div class="slide--image__wrapper">
 			<img class="slide--image" src={item.image} alt={item.title} />
@@ -88,6 +87,7 @@
 	.slide {
 		--slide-translateY-offset: 0vh;
 		--padding: 0px;
+		--offset: 0;
 
 		display: inline-block;
 		width: var(--slide-width);
@@ -98,12 +98,13 @@
 		transform: translate(-50%, -50%)
 			translate3d(var(--slide-translateX-offset), var(--slide-translateY-offset), 0)
 			rotateY(var(--slide-rotation-offset)) scale(var(--slide-scale-offset));
+
 		transition: transform var(--slide-transition-duration) var(--slide-transition-easing);
 		user-select: none;
-		perspective: 600px;
+		perspective: 800px;
 	}
 
-	.slide[data-state='current'] {
+	.slide[data-current] {
 		--current-slide-rotation-offset: 0;
 		--slide-translateX-offset: 0;
 		--slide-rotation-offset: var(--current-slide-rotation-offset);
@@ -112,18 +113,9 @@
 		z-index: 10;
 	}
 
-	.slide[data-state='previous'] {
-		--slide-translateX-offset: calc(-1 * var(--slide-width) * 0.8);
-		--slide-rotation-offset: 25deg;
-	}
-
-	.slide[data-state='next'] {
-		--slide-translateX-offset: calc(var(--slide-width) * 0.8);
-		--slide-rotation-offset: -25deg;
-	}
-
-	.slide[data-state='previous'],
-	.slide[data-state='next'] {
+	.slide:not([data-current]) {
+		--slide-translateX-offset: calc(var(--offset) * var(--slide-width) * 0.8);
+		--slide-rotation-offset: calc(var(--offset) * -20deg);
 		--slide-scale-offset: 0.9;
 		pointer-events: none;
 	}
