@@ -1,11 +1,17 @@
 <script lang="ts" context="module">
-	export { SlideItem };
+	export type SlideItem = {
+		image: string;
+		title: string;
+		subtitle: string;
+		description: string;
+	};
 </script>
 
 <script lang="ts">
 	import { wrap } from '@/utils';
+	import { tilt } from '@/actions/tilt';
 
-	import Slide, { type SlideItem } from '@/components/slide.svelte';
+	import Slide from '@/components/slide.svelte';
 	import ChevronLeft from '@/components/icons/chevron-left.svelte';
 	import ChevronRight from '@/components/icons/chevron-right.svelte';
 
@@ -34,16 +40,13 @@
 		<ChevronLeft />
 	</button>
 
-	<div class="slider--slides">
-		{#each slides as item, index}
-			{@const offset = calculateOffset(index, currentSlideIndex)}
-			<Slide
-				{item}
-				{offset}
-				zIndex={length - Math.abs(offset)}
-				data-current={offset === 0 || undefined}
-			/>
-		{/each}
+	<div class="sliders__wrapper">
+		<div class="slides">
+			{#each slides as item, index}
+				{@const offset = calculateOffset(index, currentSlideIndex)}
+				<Slide {item} {offset} zIndex={length - Math.abs(offset)} />
+			{/each}
+		</div>
 	</div>
 
 	<button class="slider--btn" on:click={next}>
@@ -56,16 +59,28 @@
 		position: relative;
 		display: block;
 		width: calc(3 * var(--slide-width));
-		height: calc(1.5 * var(--slide-height));
+		height: calc(2 * var(--slide-height));
 		display: flex;
 		align-items: center;
 	}
 
-	.slider--slides {
+	.sliders__wrapper {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+
+	.slides {
 		position: relative;
 		width: 100%;
 		height: 100%;
 		perspective: 1000px;
+
+		display: grid;
+		place-items: center;
+		& > * {
+			grid-area: 1 / -1;
+		}
 	}
 
 	.slider--btn {

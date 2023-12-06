@@ -19,3 +19,5 @@ export class Vec2 {
 }
 
 export const vec2 = (x = 0, y = 0) => new Vec2(x, y);
+
+export const isHTMLElement = (el: unknown): el is HTMLElement => el instanceof HTMLElement;

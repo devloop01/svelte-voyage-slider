@@ -15,8 +15,8 @@
 }
 
 :root {
-	--slide-width: 200px;
-	--slide-height: 300px;
+	--slide-width: 250px;
+	--slide-aspect: 2 / 3;
 
 	--slide-transition-duration: 800ms;
 	--slide-transition-easing: ease;
@@ -58,9 +58,8 @@ button {
 	place-items: center;
 }
 
-@media only screen and (min-width: 800px) {
+@media only screen and (max-width: 800px) {
 	:root {
-		--slide-width: 280px;
-		--slide-height: 400px;
+		--slide-width: 200px;
 	}
 }

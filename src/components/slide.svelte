@@ -8,113 +8,78 @@
 </script>
 
 <script lang="ts">
-	import { vec2 } from '@/utils';
-	import type { Action } from 'svelte/action';
+	import { tilt } from '@/actions/tilt';
 
 	export let item: SlideItem;
 	export let offset: number;
 	export let zIndex: number;
 
-	const tilt: Action = (node) => {
-		const element = node.children[0] as HTMLElement;
-
-		let lerpAmount = 0.06;
-
-		let rotDeg = { current: vec2(), target: vec2() };
-		let bgPos = { current: vec2(), target: vec2() };
-
-		let rafId = 0;
-
-		function ticker() {
-			rotDeg.current.lerp(rotDeg.target, lerpAmount);
-			bgPos.current.lerp(bgPos.target, lerpAmount);
-
-			element.style.setProperty('--rotX', rotDeg.current.y.toFixed(2) + 'deg');
-			element.style.setProperty('--rotY', rotDeg.current.x.toFixed(2) + 'deg');
-
-			element.style.setProperty('--bgPosX', bgPos.current.x.toFixed(2) + '%');
-			element.style.setProperty('--bgPosY', bgPos.current.y.toFixed(2) + '%');
-
-			rafId = requestAnimationFrame(ticker);
-		}
-
-		const update = ({ offsetX, offsetY }: MouseEvent) => {
-			lerpAmount = 0.1;
-
-			const ox = (offsetX - node.clientWidth * 0.5) / (Math.PI * 3);
-			const oy = -(offsetY - node.clientHeight * 0.5) / (Math.PI * 4);
-
-			rotDeg.target.set(ox, oy);
-			bgPos.target.set(-ox * 0.3, oy * 0.3);
-		};
-
-		const reset = () => {
-			lerpAmount = 0.05;
-
-			rotDeg.target.set(0, 0);
-			bgPos.target.set(0, 0);
-		};
-
-		node.addEventListener('mousemove', update);
-		node.addEventListener('mouseleave', reset);
-
-		rafId = requestAnimationFrame(ticker);
-
-		return {
-			destroy() {
-				node.removeEventListener('mousemove', update);
-				node.removeEventListener('mouseleave', reset);
-				cancelAnimationFrame(rafId);
-			}
-		};
-	};
+	let slideInnerEl: HTMLElement;
+	let slideInfoInnerEl: HTMLElement;
 </script>
 
-<div class="slide" style:--offset={offset} style:z-index={zIndex} use:tilt {...$$restProps}>
-	<div class="slide__inner" style:--image-url="url({item.image})">
+<div
+	class="slide"
+	style:--offset={offset}
+	style:z-index={zIndex}
+	data-current={offset === 0 || undefined}
+	use:tilt={{ target: [slideInnerEl, slideInfoInnerEl] }}
+	{...$$restProps}
+>
+	<div bind:this={slideInnerEl} class="slide__inner">
 		<div class="slide--image__wrapper">
 			<img class="slide--image" src={item.image} alt={item.title} />
 		</div>
-		<div class="slide-info">
-			<span data-title class="slide-info--text">{item.title}</span>
-			<span data-subtitle class="slide-info--text">{item.subtitle}</span>
-			<span data-description class="slide-info--text">{item.description}</span>
+	</div>
+</div>
+
+<div class="slide-info" data-current={offset === 0 || undefined}>
+	<div bind:this={slideInfoInnerEl} class="slide-info__inner">
+		<div class="slide-info--text__wrapper">
+			<div data-title class="slide-info--text">
+				<span>{item.title}</span>
+			</div>
+			<div data-subtitle class="slide-info--text">
+				<span>{item.subtitle}</span>
+			</div>
+			<div data-description class="slide-info--text">
+				<span>{item.description}</span>
+			</div>
 		</div>
 	</div>
 </div>
 
 <style lang="postcss">
 	.slide {
-		--slide-translateY-offset: 0vh;
+		--slide-ty: 0vh;
 		--padding: 0px;
 		--offset: 0;
 
-		display: inline-block;
 		width: var(--slide-width);
-		height: var(--slide-height);
-		position: absolute;
-		left: 50%;
-		top: 50%;
-		transform: translate(-50%, -50%) translate3d(var(--slide-tx), var(--slide-translateY-offset), 0)
-			rotateY(var(--slide-rotY)) scale(var(--slide-scale));
-
-		transition: transform var(--slide-transition-duration) var(--slide-transition-easing);
+		height: auto;
+		aspect-ratio: var(--slide-aspect);
 		user-select: none;
 		perspective: 800px;
+
+		transform: translate3d(var(--slide-tx), var(--slide-ty), var(--slide-tz, 0))
+			rotateY(var(--slide-rotY));
+		transition: transform var(--slide-transition-duration) var(--slide-transition-easing);
 	}
 
 	.slide[data-current] {
+		--slide-scale: 1.2;
+		--slide-tz: 0px;
 		--slide-tx: 0;
 		--slide-rotY: 0;
-		--slide-scale: 1.2;
 
 		pointer-events: auto;
 	}
 
 	.slide:not([data-current]) {
+		--slide-scale: 0.9;
+		--slide-tz: 0;
 		--slide-tx: calc(var(--offset) * var(--slide-width) * 1);
 		--slide-rotY: calc(var(--offset) * -45deg);
-		--slide-scale: 0.9;
 
 		pointer-events: none;
 	}
@@ -123,19 +88,11 @@
 		& .slide--image {
 			filter: brightness(0.8);
 		}
-
-		& .slide-info--text {
-			opacity: 1;
-		}
 	}
 
 	.slide:not([data-current]) {
 		& .slide--image {
-			filter: brightness(0.65);
-		}
-
-		& .slide-info--text {
-			opacity: 0;
+			filter: brightness(0.5);
 		}
 	}
 
@@ -163,34 +120,80 @@
 	}
 
 	.slide--image {
-		position: absolute;
-		left: 0;
-		top: 0;
 		width: 100%;
 		height: 100%;
+		position: absolute;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%) scale(1.25) translate3d(var(--bgPosX), var(--bgPosY), 0);
 		object-fit: cover;
+		transform: translate(-50%, -50%) scale(1.25) translate3d(var(--bgPosX), var(--bgPosY), 0);
 		transition: filter var(--slide-transition-duration) var(--slide-transition-easing);
 	}
 
+	/* ------------ SLIDE INFO ---------------- */
+
 	.slide-info {
+		--padding: 0px;
+
+		position: relative;
+		pointer-events: none;
+		width: var(--slide-width);
+		height: auto;
+		aspect-ratio: var(--slide-aspect);
+		user-select: none;
+		perspective: 800px;
+		z-index: 20;
+	}
+
+	.slide-info[data-current] {
+		& .slide-info--text span {
+			opacity: 1;
+			transform: translate3d(0, 0, 0);
+			transition-delay: 250ms;
+		}
+	}
+
+	.slide-info:not([data-current]) {
+		& .slide-info--text span {
+			opacity: 0;
+			transform: translate3d(0, 100%, 0);
+			transition-delay: 0ms;
+		}
+	}
+
+	.slide-info__inner {
+		position: relative;
+		left: calc(var(--padding) / 2);
+		top: calc(var(--padding) / 2);
+		width: calc(100% - var(--padding));
+		height: calc(100% - var(--padding));
+		pointer-events: none;
+		transform-style: preserve-3d;
+		transform: rotateX(var(--rotX)) rotateY(var(--rotY));
+	}
+
+	.slide-info--text__wrapper {
 		--z-offset: 45px;
 		position: absolute;
 		height: fit-content;
-		left: -20%;
-		bottom: 20%;
+		left: -15%;
+		bottom: 15%;
 		transform: translateZ(var(--z-offset));
 		z-index: 2;
 		pointer-events: none;
 	}
 
 	.slide-info--text {
-		display: block;
 		font-family: var(--font-clash-display);
 		color: #fff;
-		transition: opacity var(--slide-transition-duration) var(--slide-transition-easing);
+		overflow: hidden;
+
+		& span {
+			display: block;
+			white-space: nowrap;
+			transition: var(--slide-transition-duration) var(--slide-transition-easing);
+			transition-property: opacity, transform;
+		}
 
 		&[data-title],
 		&[data-subtitle] {
