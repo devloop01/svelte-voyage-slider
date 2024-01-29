@@ -1,15 +1,10 @@
 <script lang="ts" context="module">
-	export type SlideItem = {
-		image: string;
-		title: string;
-		subtitle: string;
-		description: string;
-	};
+	import type { SlideItem } from './slide.svelte';
+	export { type SlideItem };
 </script>
 
 <script lang="ts">
 	import { wrap } from '@/utils';
-	import { tilt } from '@/actions/tilt';
 
 	import Slide from '@/components/slide.svelte';
 	import ChevronLeft from '@/components/icons/chevron-left.svelte';
@@ -18,8 +13,10 @@
 	export let slides: SlideItem[];
 	export let currentSlideIndex = 0;
 
+	let nSlides = [...slides];
+
 	$: length = slides.length;
-	$: mid = Math.floor(length / 2);
+	// $: mid = Math.floor(length / 2);
 
 	const prev = () => {
 		currentSlideIndex = wrap(--currentSlideIndex, length);
@@ -31,8 +28,13 @@
 
 	const calculateOffset = (index: number, currentSlideIndex: number) => {
 		const diff = index - currentSlideIndex;
-		return diff > mid ? diff - length : diff < -mid ? diff + length : diff;
+		return diff;
+		// return diff > mid ? diff - length : diff < -mid ? diff + length : diff;
 	};
+
+	// $: {
+	// console.log(nSlides.map((_, index) => -calculateOffset(index, currentSlideIndex)));
+	// }
 </script>
 
 <div class="slider" data-current-index={currentSlideIndex}>
@@ -42,7 +44,7 @@
 
 	<div class="sliders__wrapper">
 		<div class="slides">
-			{#each slides as item, index}
+			{#each nSlides as item, index}
 				{@const offset = calculateOffset(index, currentSlideIndex)}
 				<Slide {item} {offset} zIndex={length - Math.abs(offset)} />
 			{/each}
@@ -74,7 +76,6 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		perspective: 1000px;
 
 		display: grid;
 		place-items: center;
@@ -84,18 +85,18 @@
 	}
 
 	.slider--btn {
-		--size: 30px;
-		--offset: 100px;
+		--size: 40px;
 
-		width: var(--size);
-		height: var(--size);
+		display: inline-flex;
+		justify-content: center;
+		align-items: center;
 		opacity: 0.7;
 		transition: opacity 250ms cubic-bezier(0.215, 0.61, 0.355, 1);
 		z-index: 1000;
 
 		& svg {
-			width: 100%;
-			height: 100%;
+			width: var(--size);
+			height: var(--size);
 			stroke: white;
 		}
 

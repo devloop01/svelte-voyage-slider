@@ -9,6 +9,7 @@
 
 <script lang="ts">
 	import { tilt } from '@/actions/tilt';
+	import { fade } from 'svelte/transition';
 
 	export let item: SlideItem;
 	export let offset: number;
@@ -18,38 +19,51 @@
 	let slideInfoInnerEl: HTMLElement;
 </script>
 
-<div
-	class="slide"
-	style:--offset={offset}
-	style:z-index={zIndex}
-	data-current={offset === 0 || undefined}
-	use:tilt={{ target: [slideInnerEl, slideInfoInnerEl] }}
-	{...$$restProps}
->
-	<div bind:this={slideInnerEl} class="slide__inner">
-		<div class="slide--image__wrapper">
-			<img class="slide--image" src={item.image} alt={item.title} />
+<div class="slide__wrapper" transition:fade>
+	<div
+		class="slide"
+		style:--offset={offset}
+		style:--dir={offset === 0 ? 0 : offset > 0 ? 1 : -1}
+		style:z-index={zIndex}
+		data-current={offset === 0 || undefined}
+		use:tilt={{ target: [slideInnerEl, slideInfoInnerEl] }}
+		{...$$restProps}
+	>
+		<div bind:this={slideInnerEl} class="slide__inner">
+			<div class="slide--image__wrapper">
+				<img class="slide--image" src={item.image} alt={item.title} />
+			</div>
 		</div>
 	</div>
-</div>
 
-<div class="slide-info" data-current={offset === 0 || undefined}>
-	<div bind:this={slideInfoInnerEl} class="slide-info__inner">
-		<div class="slide-info--text__wrapper">
-			<div data-title class="slide-info--text">
-				<span>{item.title}</span>
-			</div>
-			<div data-subtitle class="slide-info--text">
-				<span>{item.subtitle}</span>
-			</div>
-			<div data-description class="slide-info--text">
-				<span>{item.description}</span>
+	<div class="slide-info" data-current={offset === 0 || undefined}>
+		<div bind:this={slideInfoInnerEl} class="slide-info__inner">
+			<div class="slide-info--text__wrapper">
+				<div data-title class="slide-info--text">
+					<span>{item.title}</span>
+				</div>
+				<div data-subtitle class="slide-info--text">
+					<span>{item.subtitle}</span>
+				</div>
+				<div data-description class="slide-info--text">
+					<span>{item.description}</span>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
 
 <style lang="postcss">
+	.slide__wrapper {
+		perspective: 1000px;
+
+		display: grid;
+		place-items: center;
+		& > * {
+			grid-area: 1 / -1;
+		}
+	}
+
 	.slide {
 		--slide-ty: 0vh;
 		--padding: 0px;
@@ -62,7 +76,7 @@
 		perspective: 800px;
 
 		transform: translate3d(var(--slide-tx), var(--slide-ty), var(--slide-tz, 0))
-			rotateY(var(--slide-rotY));
+			rotateY(var(--slide-rotY)) scale(var(--slide-scale));
 		transition: transform var(--slide-transition-duration) var(--slide-transition-easing);
 	}
 
@@ -76,10 +90,10 @@
 	}
 
 	.slide:not([data-current]) {
-		--slide-scale: 0.9;
+		--slide-scale: 1;
 		--slide-tz: 0;
-		--slide-tx: calc(var(--offset) * var(--slide-width) * 1);
-		--slide-rotY: calc(var(--offset) * -45deg);
+		--slide-tx: calc(var(--offset) * var(--slide-width) * 1.05);
+		--slide-rotY: calc(var(--dir) * -45deg);
 
 		pointer-events: none;
 	}
